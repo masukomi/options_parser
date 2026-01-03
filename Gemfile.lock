@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    options_parser (0.1.0)
+    options_parser (1.0.0)
       paint (~> 2.3.0)
 
 GEM
