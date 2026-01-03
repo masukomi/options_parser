@@ -33,6 +33,7 @@ code-sections:
         - parser
         - option
         - tests
+        - docs
 ticket-number:
     type: text
     destination: body
