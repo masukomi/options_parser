@@ -56,6 +56,18 @@ parser.parse(ARGV)
 # Access trailing arguments (anything after --)
 trailing = parser.trailing_values
 ```
+Options have the following attributes:
+
+- `short` - the optional short flag
+- `long`  - the optional long flag
+- `value_type` - tells the system that the argument takes a value,
+  and what kind of value it is. Must be specified if you want to guarantee
+  a value is passed.
+- `required` - `true` / `false` defaults to false.
+- `help` - additional details that will appear in the help docs
+
+Either `short` or `long` _must_ be specified. It doesn't matter which, and specifying both is fine.
+
 
 ### Command Line Examples
 
@@ -137,3 +149,5 @@ GPL-2.0-only
 
 - masukomi
 - Felipe Contreras
+
+Filipe wrote [ruby-parseopt](https://github.com/felipec/ruby-parseopt). masukomi took that as a starting point and modified it until its core functionality was radically different. Now, it's its own thing.
