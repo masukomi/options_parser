@@ -1,39 +1,139 @@
-# OptionsParser
+# Options Parser
 
-TODO: Delete this and the text below, and describe your gem
+A simple, clean command-line option parser for Ruby with a fluent DSL.
 
-Welcome to your new gem! In this directory, you'll find the files you need to be able to package up your Ruby library into a gem. Put your Ruby code in the file `lib/options_parser`. To experiment with that code, run `bin/console` for an interactive prompt.
+## Overview
+
+Options Parser provides a straightforward way to define and parse command-line arguments in Ruby applications. It supports short and long flags, typed values, required options, and automatic help generation with colorized output.
 
 ## Installation
 
-TODO: Replace `UPDATE_WITH_YOUR_GEM_NAME_IMMEDIATELY_AFTER_RELEASE_TO_RUBYGEMS_ORG` with your gem name right after releasing it to RubyGems.org. Please do not do it earlier due to security reasons. Alternatively, replace this section with instructions to install your gem from git if you don't plan to release to RubyGems.org.
+Add to your Gemfile:
 
-Install the gem and add to the application's Gemfile by executing:
-
-```bash
-bundle add UPDATE_WITH_YOUR_GEM_NAME_IMMEDIATELY_AFTER_RELEASE_TO_RUBYGEMS_ORG
+```ruby
+gem 'options_parser'
 ```
 
-If bundler is not being used to manage dependencies, install the gem by executing:
+Or install directly:
 
 ```bash
-gem install UPDATE_WITH_YOUR_GEM_NAME_IMMEDIATELY_AFTER_RELEASE_TO_RUBYGEMS_ORG
+gem install options_parser
 ```
+
+**Requires Ruby 3.2+**
 
 ## Usage
 
-TODO: Write usage instructions here
+```ruby
+require 'options_parser'
 
-## Development
+options = {}
 
-After checking out the repo, run `bin/setup` to install dependencies. Then, run `rake spec` to run the tests. You can also run `bin/console` for an interactive prompt that will allow you to experiment.
+parser = OptionsParser::Parser.new(command: "myapp", description: "Does something useful") do |p|
+  p.on(short: "-f", long: "--file", value_type: :string, help: "Input file path") do |value|
+    options[:file] = value
+  end
 
-To install this gem onto your local machine, run `bundle exec rake install`. To release a new version, update the version number in `version.rb`, and then run `bundle exec rake release`, which will create a git tag for the version, push git commits and the created tag, and push the `.gem` file to [rubygems.org](https://rubygems.org).
+  p.on(short: "-n", long: "--count", value_type: :integer, help: "Number of iterations") do |value|
+    options[:count] = value
+  end
 
-## Contributing
+  p.on(short: "-r", long: "--rate", value_type: :decimal, help: "Processing rate") do |value|
+    options[:rate] = value
+  end
 
-Bug reports and pull requests are welcome on GitHub at https://github.com/[USERNAME]/options_parser.
+  p.on(short: "-v", long: "--verbose", help: "Enable verbose output") do |value|
+    options[:verbose] = value  # value is `true` for flags without value_type
+  end
+
+  p.on(short: "-o", long: "--output", value_type: :string, required: true, help: "Output file (required)") do |value|
+    options[:output] = value
+  end
+end
+
+parser.parse(ARGV)
+
+# Access trailing arguments (anything after --)
+trailing = parser.trailing_values
+```
+
+### Command Line Examples
+
+```bash
+# Short flags
+myapp -f input.txt -n 10 -v -o output.txt
+
+# Long flags
+myapp --file=input.txt --count=10 --verbose --output=output.txt
+
+# Mixed
+myapp -f input.txt --count 10 -v -o output.txt
+
+# With trailing arguments
+myapp -f input.txt -o output.txt -- extra1 extra2 extra3
+```
+
+## Features
+
+### Value Types
+
+- `:string` - Any string value
+- `:integer` - Whole numbers only (validated)
+- `:decimal` - Floating point numbers (validated, must include decimal point)
+
+Options without a `value_type` are boolean flags that pass `true` to their block.
+
+### Required Options
+
+Mark an option as required:
+
+```ruby
+p.on(short: "-o", long: "--output", value_type: :string, required: true) do |value|
+  # ...
+end
+```
+
+The parser will display an error and usage information if required options are missing.
+
+### Trailing Values
+
+Arguments after `--` are collected in `parser.trailing_values`:
+
+```bash
+myapp -f file.txt -- arg1 arg2 arg3
+```
+
+```ruby
+parser.trailing_values  # => ["arg1", "arg2", "arg3"]
+```
+
+### Automatic Help
+
+`-h` and `--help` are automatically handled, displaying usage information and exiting.
+
+### Direct Value Access
+
+Option values can be accessed directly from the option object:
+
+```ruby
+file_opt = parser.on(short: "-f", value_type: :string)
+parser.parse(ARGV)
+file_opt.value  # => the parsed value
+```
+
+## Error Handling
+
+Invalid options or values display colorized error messages followed by usage information:
+
+- Missing required options
+- Invalid option flags
+- Type validation failures (e.g., non-integer passed to `:integer` type)
 
 ## License
 
-The gem is available as open source under the terms of the [MIT License](https://opensource.org/licenses/MIT).
+GPL-2.0-only
+
+## Authors
+
+- masukomi
+- Felipe Contreras
