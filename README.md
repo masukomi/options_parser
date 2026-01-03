@@ -1,6 +1,6 @@
 # Options Parser
 
-A simple, clean command-line option parser for Ruby with a fluent DSL.
+A simple, clean command-line option parser for Ruby.
 
 ## Overview
 
