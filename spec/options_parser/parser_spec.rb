@@ -70,6 +70,16 @@ RSpec.describe OptionsParser::Parser do
       expect(passed_int).to(eq(1))
 
     end
+
+    it "handles equals args correctly" do
+      args=["-f=v1.0.0"]
+      provided_options = {}
+      parser.on(short: "-f", long: "--from", value_type: :string, required: true) do |value|
+        provided_options[:from] = value
+      end
+      parser.parse(args)
+      expect(provided_options[:from]).to(eq("v1.0.0"))
+    end
   end
 
 end

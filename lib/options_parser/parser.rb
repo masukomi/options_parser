@@ -66,56 +66,57 @@ module OptionsParser
         end
 
         begin
-        current_option = nil
-        separator_found = false
-        separated_args.each do | arg |
-            if separator_found
-                @trailing_values.push(arg)
-                next
-            end
-            hyphen_arg = arg.match?(/^-{1,2}\w+$/)
-            separator = hyphen_arg ? false : (arg == "--")
+            current_option = nil
+            separator_found = false
+            separated_args.each do | arg |
+                if separator_found
+                    @trailing_values.push(arg)
+                    next
+                end
+                hyphen_arg = arg.match?(/^-{1,2}\w+$/)
+                separator = hyphen_arg ? false : (arg == "--")
 
-            # our first argument flag?
-            if current_option.nil? && hyphen_arg
-                current_option = find_opt_for_arg(arg)
-                raise InvalidOptionException.new("#{arg} is not a supported option") unless current_option
-                next
-                # an argument flag when we've already encountered one
-            elsif current_option && hyphen_arg && test_satisfied_or_exit(current_option)
-                # execute the option's block
-                current_option = find_opt_for_arg(arg)
-                raise InvalidOptionException.new("#{arg} is not a supported option") unless current_option
+                # our first argument flag?
+                if current_option.nil? && hyphen_arg
+                    current_option = find_opt_for_arg(arg)
+                    raise InvalidOptionException.new("#{arg} is not a supported option") unless current_option
+                    next
+                    # an argument flag when we've already encountered one
+                elsif current_option && hyphen_arg && test_satisfied_or_exit(current_option)
+                    # execute the option's block
+                    current_option = find_opt_for_arg(arg)
+                    raise InvalidOptionException.new("#{arg} is not a supported option") unless current_option
 
-            elsif current_option && hyphen_arg
-                current_option.call()
-                next
-            # a separator ( no are options after this )
-            elsif separator && (current_option.nil? || test_satisfied_or_exit(current_option))
-                separator_found = true
-                next
-            end
+                elsif current_option && hyphen_arg
+                    current_option.call()
+                    next
+                # a separator ( no are options after this )
+                elsif separator && (current_option.nil? || test_satisfied_or_exit(current_option))
+                    separator_found = true
+                    next
+                end
 
-            # still here?
-            # not an option flag, or separator,
-            if !separator_found
-                # must be a value that we'll give to the current_option
-                current_option&.call(arg)
-            else
-                @trailing_values.push(arg)
+                # still here?
+                # not an option flag, or separator,
+                if !separator_found
+                    # must be a value that we'll give to the current_option
+                    current_option&.call(arg)
+                else
+                    @trailing_values.push(arg)
+                end
             end
-        end
+            # if there's still an option
+            # make sure it's satisfied and call its block
+            unless current_option.nil?
+                unless test_satisfied_or_exit(current_option)
+                   current_option.call()
+                end
+            end
         # end parsing args
         rescue InvalidValueException, InvalidOptionException => e
             puts Paint[e.message, :red]
             usage()
             exit(1)
-        end
-        # if there's still an option
-        # make sure it's satisfied and call its block
-        unless current_option.nil?
-            test_satisfied_or_exit(current_option)
-            current_option.call()
         end
 
     end
@@ -125,12 +126,12 @@ module OptionsParser
         top_line_usage =[]
         usage_body = []
         @options.each do |opt|
-        usage_text = opt.usage_text
-        top_line_usage.push(usage_text)
-        usage_body.push(usage_text)
-        if opt.help
-            usage_body.push("\t" + help.split(/\n/).join("\n\t\t"))
-        end
+            usage_text = opt.usage_text
+            top_line_usage.push(usage_text)
+            usage_body.push(usage_text)
+            if opt.help
+                usage_body.push("\t" + help.split(/\n/).join("\n\t\t"))
+            end
         end
         puts "Usage: #{top_line_usage.join(" ")}"
         puts @description unless @description.nil?
