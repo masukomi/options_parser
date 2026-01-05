@@ -6,6 +6,16 @@ A simple, clean command-line option parser for Ruby.
 
 Options Parser provides a straightforward way to define and parse command-line arguments in Ruby applications. It supports short and long flags, typed values, required options, and automatic help generation with colorized output.
 
+It supports
+
+- auto-generated help docs
+- required & optional arguments
+- short and/or long variations
+- arguments that take values, or just act as flags
+- separating flag from value with space or equals
+- trailing arguments
+  Ex. `command -n 4 -- file_1.txt file_2.txt`
+
 ## Installation
 
 Add to your Gemfile:
