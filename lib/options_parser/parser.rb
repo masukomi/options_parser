@@ -130,7 +130,7 @@ module OptionsParser
             top_line_usage.push(usage_text)
             usage_body.push(usage_text)
             if opt.help
-                usage_body.push("\t" + help.split(/\n/).join("\n\t\t"))
+                usage_body.push("\t" + opt.help.split(/\n/).join("\n\t"))
             end
         end
         puts "Usage: #{top_line_usage.join(" ")}"
