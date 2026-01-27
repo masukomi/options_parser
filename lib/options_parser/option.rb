@@ -12,7 +12,7 @@ module OptionsParser
       @short = short
       @long = long
       @help = help
-      @required = false if required.nil?
+      @required = required || false
       @value = nil
       raise "Option must contain a short or long flag" if @short.nil? && @long.nil?
     end

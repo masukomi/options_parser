@@ -82,16 +82,31 @@ module OptionsParser
                     raise InvalidOptionException.new("#{arg} is not a supported option") unless current_option
                     next
                     # an argument flag when we've already encountered one
-                elsif current_option && hyphen_arg && test_satisfied_or_exit(current_option)
-                    # execute the option's block
+                elsif current_option && hyphen_arg
+                    # Handle current option before switching to the new one
+                    if current_option.takes_value?
+                        # Option requires a value - verify it received one
+                        test_satisfied_or_exit(current_option)
+                    else
+                        # Boolean flag - invoke it now
+                        current_option.call()
+                    end
+                    # Switch to the new option
                     current_option = find_opt_for_arg(arg)
                     raise InvalidOptionException.new("#{arg} is not a supported option") unless current_option
-
-                elsif current_option && hyphen_arg
-                    current_option.call()
                     next
                 # a separator ( no are options after this )
-                elsif separator && (current_option.nil? || test_satisfied_or_exit(current_option))
+                elsif separator
+                    # Handle current option before processing separator
+                    unless current_option.nil?
+                        if current_option.takes_value?
+                            # Option requires a value - verify it received one
+                            test_satisfied_or_exit(current_option)
+                        else
+                            # Boolean flag - invoke it now
+                            current_option.call()
+                        end
+                    end
                     separator_found = true
                     next
                 end
@@ -108,8 +123,18 @@ module OptionsParser
             # if there's still an option
             # make sure it's satisfied and call its block
             unless current_option.nil?
-                unless test_satisfied_or_exit(current_option)
-                   current_option.call()
+                if current_option.takes_value?
+                    # Option requires a value - verify it received one
+                    test_satisfied_or_exit(current_option)
+                else
+                    # Boolean flag - invoke it now
+                    current_option.call()
+                end
+            end
+            # Check that all required options are satisfied
+            @options.each do |opt|
+                if opt.required && !opt.satisfied?
+                    test_satisfied_or_exit(opt)
                 end
             end
         # end parsing args

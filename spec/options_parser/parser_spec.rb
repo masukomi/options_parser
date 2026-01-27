@@ -80,6 +80,53 @@ RSpec.describe OptionsParser::Parser do
       parser.parse(args)
       expect(provided_options[:from]).to(eq("v1.0.0"))
     end
+
+    it "handles boolean flag before value option" do
+      args=["-i", "-f", "v1.0.0"]
+      provided_options = {}
+      parser.on(short: "-i", long: "--include-all") do |value|
+        provided_options[:include_all] = value
+      end
+      parser.on(short: "-f", long: "--from", value_type: :string) do |value|
+        provided_options[:from] = value
+      end
+      parser.parse(args)
+      expect(provided_options[:include_all]).to(eq(true))
+      expect(provided_options[:from]).to(eq("v1.0.0"))
+    end
+
+    it "handles value option before boolean flag" do
+      args=["-f", "v1.0.0", "-i"]
+      provided_options = {}
+      parser.on(short: "-i", long: "--include-all") do |value|
+        provided_options[:include_all] = value
+      end
+      parser.on(short: "-f", long: "--from", value_type: :string) do |value|
+        provided_options[:from] = value
+      end
+      parser.parse(args)
+      expect(provided_options[:from]).to(eq("v1.0.0"))
+      expect(provided_options[:include_all]).to(eq(true))
+    end
+
+    it "handles boolean flag between value options" do
+      args=["-f", "v1.0.0", "-i", "-t", "v1.0.1"]
+      provided_options = {}
+      parser.on(short: "-i", long: "--include-all") do |value|
+        provided_options[:include_all] = value
+      end
+      parser.on(short: "-f", long: "--from", value_type: :string) do |value|
+        provided_options[:from] = value
+      end
+      parser.on(short: "-t", long: "--to", value_type: :string) do |value|
+        provided_options[:to] = value
+      end
+      parser.parse(args)
+      expect(provided_options[:include_all]).to(eq(true))
+      expect(provided_options[:from]).to(eq("v1.0.0"))
+      expect(provided_options[:to]).to(eq("v1.0.1"))
+    end
+
   end
 
 end
