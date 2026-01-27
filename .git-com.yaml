@@ -16,13 +16,11 @@ commit-title:
     placeholder: Commit Title
     type: text
 commit-description:
-    after-string: ""
     allow-empty: true
     destination: body
     instructions: Please describe your changes.
     type: multiline-text
 code-sections:
-    after-string: ""
     allow-empty: true
     before-string: "\nCode Sections: "
     destination: body
@@ -33,6 +31,7 @@ code-sections:
         - option
         - tests
         - docs
+        - meta
     record-as: joined-string
     type: multi-select
 ticket-number:
@@ -42,3 +41,9 @@ ticket-number:
     destination: body
     instructions: Associated Ticket Number (if any)
     type: text
+meta_element_changelog:
+    display_aliases:
+        fix: "fixed"
+        add: "added"
+        refactor: "refactored"
+        clean-up: "cleaned"
